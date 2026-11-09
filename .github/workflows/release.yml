@@ -1,8 +1,8 @@
 name: release
 
-# Push a tag like v0.1.1 (made by `npm version patch`) to test on Linux and macOS, then publish to npm with
-# trusted publishing (no stored token) and to the MCP Registry with GitHub OIDC. Versions already published
-# are skipped, so re-running a release is safe.
+# Push a tag like v0.1.1 (made by `npm version patch`) to test on Linux and macOS, then publish to npm and to
+# the MCP Registry (GitHub OIDC). npm uses trusted publishing when it is set up for the package, otherwise the
+# NPM_TOKEN repository secret. Versions already published are skipped, so re-running a release is safe.
 on:
   push:
     tags: ['v*']
@@ -71,12 +71,16 @@ jobs:
           ' "$V"
 
       - name: Publish to npm
+        env:
+          # npm tries trusted publishing (OIDC) first and falls back to this token. Once trusted publishing is
+          # configured for the package on npmjs.com, the NPM_TOKEN secret can be deleted.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           NAME=$(node -p "require('./package.json').name"); V=$(node -p "require('./package.json').version")
           if npm view "$NAME@$V" version >/dev/null 2>&1; then
             echo "$NAME@$V is already on npm; skipping"
           else
-            npm publish --access public
+            npm publish --access public --provenance
           fi
 
       - name: Install mcp-publisher

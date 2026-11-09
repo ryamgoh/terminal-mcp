@@ -88,7 +88,7 @@ export function buildServerFactory(manager: SessionManager, audit: Logger | null
           cols: z.number().int().min(20).max(500).optional().describe('Terminal width (default 120)'),
           rows: z.number().int().min(5).max(200).optional().describe('Terminal height (default 32)'),
           name: z.string().max(64).optional().describe('Optional label; can be used instead of session_id later, e.g. "devserver"'),
-          wait_ms: z.number().int().min(0).max(60_000).default(5000).describe('How long to wait for the shell prompt or for initial program output'),
+          wait_ms: z.number().int().min(0).max(60_000).default(5000).describe('How long to wait for the shell prompt, or for a program\'s first output and then 300 ms of quiet'),
         }),
         annotations: { destructiveHint: true, openWorldHint: true },
       },

@@ -340,7 +340,17 @@ export class Session extends EventEmitter {
 
   waitReady(timeoutMs: number): Promise<WaitReason> {
     if (this.kind === 'shell') return this.waitFor({ timeoutMs, done: () => (this.sawPrompt ? 'ready' : null) });
-    return this.waitFor({ timeoutMs, settleMs: 300 });
+    return this.waitProgramReady(timeoutMs);
+  }
+  /**
+   * Programs: wait for their first output, then until it has been quiet for 300 ms. Settling from launch would
+   * report a slow starter (python cold-starting on a busy machine) as ready before it has printed its prompt.
+   */
+  private async waitProgramReady(timeoutMs: number): Promise<WaitReason> {
+    const started = Date.now();
+    const first = await this.waitFor({ timeoutMs, done: () => (this.journal.end > 0 ? 'output' : null) });
+    if (first !== 'output') return first;
+    return this.waitFor({ timeoutMs: Math.max(0, timeoutMs - (Date.now() - started)), settleMs: 300 });
   }
 
   async waitExit(timeoutMs: number): Promise<boolean> {

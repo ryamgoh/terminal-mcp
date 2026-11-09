@@ -23,11 +23,11 @@ The JSON form works for Cursor (`~/.cursor/mcp.json`), Claude Desktop and most o
 ```bash
 npm install
 npm run build
-npm test            # 89 end-to-end tests against the built server (bash + zsh, stdio + HTTP)
+npm test            # 91 end-to-end tests against the built server (bash + zsh, stdio + HTTP)
 npm run smoke       # narrated 11-step check of one real session, as a local MCP client sees it
 ```
 
-Requirements: Node.js 20+, macOS or Linux, bash or zsh. `node-pty` ships prebuilt binaries for macOS; on Linux it compiles during install (needs `python3`, `make`, a C++ compiler). On macOS, install (and server start) restores the execute bit that node-pty 1.1.0 omits on its prebuilt `spawn-helper` ([node-pty#850](https://github.com/microsoft/node-pty/issues/850)); without it every spawn fails with `posix_spawnp failed`.
+Requirements: Node.js 22.12+ (CI tests 22 and 24), macOS or Linux, bash or zsh. `node-pty` ships prebuilt binaries for macOS; on Linux it compiles during install (needs `python3`, `make`, a C++ compiler). On macOS, install (and server start) restores the execute bit that node-pty 1.1.0 omits on its prebuilt `spawn-helper` ([node-pty#850](https://github.com/microsoft/node-pty/issues/850)); without it every spawn fails with `posix_spawnp failed`.
 
 **On a Mac?** [MACOS.md](MACOS.md) walks through install, tests, the Inspector, connecting Claude Code, Cursor and Claude Desktop, HTTP mode and Manus, step by step.
 

@@ -30,7 +30,7 @@ git init && git add -A && git commit -m "terminal-mcp 0.1.0"
 gh repo create <your-github-user>/terminal-mcp --public --source . --push
 ```
 
-(Or create the repository on github.com and push to it.) The CI workflow then runs the suite and the smoke check on Ubuntu and macOS with Node 20, 22 and 24, plus the bash scenarios against macOS's own `/bin/bash`. Wait for the Actions tab to go green before publishing; this is the first run on real Mac hardware.
+(Or create the repository on github.com and push to it.) The CI workflow then runs the suite and the smoke check on Ubuntu and macOS with Node 22 and 24, plus the bash scenarios against macOS's own `/bin/bash`. Wait for the Actions tab to go green before publishing; this is the first run on real Mac hardware.
 
 Keep the repository public if you can. Actions minutes are free for public repositories, while private ones draw on your plan's minutes and macOS runners are billed at a higher rate. npm also only attaches provenance (a verified link from the package to the commit and workflow that built it) when the repository is public.
 

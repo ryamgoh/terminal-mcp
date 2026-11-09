@@ -8,7 +8,7 @@ macOS already ships most of what the server needs: zsh 5.9 (the default login sh
 
 | You need | Check | Install if missing |
 |---|---|---|
-| Node.js 20 or 22 (LTS) | `node -v` | `brew install node@22`, or nvm / fnm |
+| Node.js 22.12+ or 24 (LTS) | `node -v` | `brew install node@22`, or nvm / fnm |
 | Xcode Command Line Tools (provides `python3`, used by the REPL and password tests) | `xcode-select -p` | `xcode-select --install` |
 | Homebrew (optional, for ngrok in step 8) | `brew -v` | see brew.sh |
 
@@ -40,11 +40,11 @@ They are expected. node-pty 1.1.0, the current stable release, publishes its mac
 npm test
 ```
 
-This builds the server and runs 89 end-to-end tests against the real binary through the official MCP client, in about a minute. The shell scenarios run four times (stdio with a 2025-era client and HTTP with a 2026-07-28 client, each on bash and zsh). The rest cover the python REPL, vim, screen rendering, output floods, paging, ten concurrent sessions, limits, disconnect cleanup and HTTP security. The run should end with:
+This builds the server and runs 91 end-to-end tests against the real binary through the official MCP client, in about a minute. The shell scenarios run four times (stdio with a 2025-era client and HTTP with a 2026-07-28 client, each on bash and zsh). The rest cover the python REPL, vim, screen rendering, output floods, paging, ten concurrent sessions, limits, disconnect cleanup and HTTP security. The run should end with:
 
 ```
  Test Files  2 passed (2)
-      Tests  89 passed (89)
+      Tests  91 passed (91)
 ```
 
 The tests use whichever `bash` comes first on your `PATH`. If you installed bash 5 with Homebrew, that is the one tested. To test macOS's own `/bin/bash` 3.2 as well:

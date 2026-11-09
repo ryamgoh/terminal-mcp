@@ -24,6 +24,21 @@ describe('programs, screens and limits (stdio)', () => {
     const bye = await call(client, 'terminal_write', { session_id: py.session_id, keys: ['ctrl+d'], wait_ms: 3000 });
     expect(bye).toMatchObject({ state: 'exited', exit_code: 0 });
   });
+  it('waits for a slow-starting program to show its prompt before reporting it ready', async () => {
+    // Silent for a second, like python cold-starting on a busy machine; readiness must not settle before output.
+    const slow = await call(client, 'terminal_start', { command: 'bash', args: ['-c', 'sleep 1; read -r -p "name? " n; echo "hi $n"'] });
+    expect(slow, `screen:\n${slow.screen}`).toMatchObject({ kind: 'program', state: 'running', reason: 'settled', awaiting_input: true, input_kind: 'prompt' });
+    expect(slow.screen).toContain('name?');
+    const out = await call(client, 'terminal_write', { session_id: slow.session_id, input: 'agent\r', wait_ms: 3000 });
+    expect(out.output.text).toContain('hi agent');
+  });
+  it('returns at wait_ms for a program that prints nothing', async () => {
+    const t0 = Date.now();
+    const quiet = await call(client, 'terminal_start', { command: 'sleep', args: ['30'], wait_ms: 800 });
+    expect(quiet).toMatchObject({ kind: 'program', state: 'running', reason: 'timeout' });
+    expect(Date.now() - t0).toBeLessThan(3000);
+    await call(client, 'terminal_kill', { session_id: quiet.session_id });
+  });
 
   it('renders full-screen programs (vim) on the screen view and drives them with keys', async () => {
     const file = path.join(os.tmpdir(), `tmcp-vim-${process.pid}.txt`);

@@ -1,0 +1,87 @@
+name: release
+
+# Push a tag like v0.1.1 (made by `npm version patch`) to test on Linux and macOS, then publish to npm with
+# trusted publishing (no stored token) and to the MCP Registry with GitHub OIDC. Versions already published
+# are skipped, so re-running a release is safe.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install zsh and vim (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zsh vim
+      - run: npm ci
+      - run: npm test
+      - run: npm run smoke
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing and MCP Registry login
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+      - name: Use an npm with trusted publishing (11.5.1 or later)
+        run: npm install -g npm@^11.5.1 && npm --version
+      - run: npm ci
+
+      - name: Check release metadata
+        run: |
+          set -e
+          if grep -l "YOUR_GITHUB_USER\|YOUR_NPM_PACKAGE\|YOUR_REPO\|YOUR_NAME" package.json server.json LICENSE README.md; then
+            echo "::error::placeholders left; run scripts/configure-release.mjs first"; exit 1
+          fi
+          V="${GITHUB_REF_NAME#v}"
+          node -e '
+            const pkg = require("./package.json"), srv = require("./server.json"), v = process.argv[1];
+            const npm = srv.packages.find((p) => p.registryType === "npm");
+            const problems = [];
+            if (pkg.version !== v) problems.push(`package.json version ${pkg.version} != tag ${v}`);
+            if (srv.version !== v) problems.push(`server.json version ${srv.version} != tag ${v}`);
+            if (!npm || npm.version !== v) problems.push(`server.json npm package version != tag ${v}`);
+            if (!npm || npm.identifier !== pkg.name) problems.push("server.json npm identifier != package.json name");
+            if (srv.name !== pkg.mcpName) problems.push("server.json name != package.json mcpName");
+            if (problems.length) { console.error(problems.join("\n")); process.exit(1); }
+          ' "$V"
+
+      - name: Publish to npm
+        run: |
+          NAME=$(node -p "require('./package.json').name"); V=$(node -p "require('./package.json').version")
+          if npm view "$NAME@$V" version >/dev/null 2>&1; then
+            echo "$NAME@$V is already on npm; skipping"
+          else
+            npm publish --access public
+          fi
+
+      - name: Install mcp-publisher
+        run: curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+      - run: ./mcp-publisher validate
+      - run: ./mcp-publisher login github-oidc
+      - name: Publish to the MCP Registry
+        run: |
+          NAME=$(node -p "require('./server.json').name"); V=$(node -p "require('./server.json').version")
+          ENC=$(node -p "encodeURIComponent(process.argv[1])" "$NAME")
+          code=$(curl -s -o /dev/null -w '%{http_code}' "https://registry.modelcontextprotocol.io/v0.1/servers/$ENC/versions/$V")
+          if [ "$code" = "200" ]; then echo "$NAME $V is already in the registry; skipping"; else ./mcp-publisher publish; fi

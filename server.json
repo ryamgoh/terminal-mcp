@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ryamgoh/terminal-mcp",
+  "title": "Terminal sessions for agents",
+  "description": "Real terminal sessions for agents: run commands, stream output, type into programs, kill trees.",
+  "repository": {
+    "url": "https://github.com/ryamgoh/terminal-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "YOUR_NPM_PACKAGE",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

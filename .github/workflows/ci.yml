@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [20, 22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install zsh and vim (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zsh vim
+      - run: npm ci
+      - run: npm test
+      - run: npm run smoke
+      - name: Shell scenarios with macOS's own /bin/bash (3.2)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p "$RUNNER_TEMP/sysbash" && ln -sf /bin/bash "$RUNNER_TEMP/sysbash/bash"
+          PATH="$RUNNER_TEMP/sysbash:$PATH" bash -c 'echo "using bash $BASH_VERSION"'
+          PATH="$RUNNER_TEMP/sysbash:$PATH" npx vitest run test/shell.test.ts -t bash

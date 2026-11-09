@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `npm run demo`: a narrated MCP client session (shell, cursor reads, prompts, a REPL, a web server, kill), recorded in `docs/demo.gif`, plus `docs/demo-manus.md`, the transcript of a Manus task controlling terminals through the published package.
+
 ## 0.1.0
 
 First release.

@@ -4,6 +4,10 @@ An MCP server that gives agents real terminals. A client can start shells or pro
 
 It works with any MCP client. Local clients launch it over **stdio**; remote or hosted clients (such as Manus) connect over **Streamable HTTP** with a bearer token. It serves both the 2025-era protocol and the 2026-07-28 revision.
 
+![Demo: an MCP client starts a shell, runs commands, reads a long job by cursor, answers a prompt, drives a Python REPL and a web server, then kills every session](docs/demo.gif)
+
+This recording is `npm run demo -- --npx`: a scripted MCP client making the same tool calls an agent would, against the published npm package. Every response shown is the server's real answer. Replay it in your terminal with `npm run demo`, or play [docs/demo.cast](docs/demo.cast) with `asciinema play`. For a real agent, see [Manus controlling terminals through terminal-mcp](docs/demo-manus.md), the transcript of a Manus task using the server as a custom MCP connector.
+
 ## Install from npm
 
 No clone or build needed; the client starts the server with `npx`:
@@ -25,6 +29,7 @@ npm install
 npm run build
 npm test            # 91 end-to-end tests against the built server (bash + zsh, stdio + HTTP)
 npm run smoke       # narrated 11-step check of one real session, as a local MCP client sees it
+npm run demo        # the narrated demo recorded above (add `-- --npx` to run the published package)
 ```
 
 Requirements: Node.js 22.12+ (CI tests 22 and 24), macOS or Linux, bash or zsh. `node-pty` ships prebuilt binaries for macOS; on Linux it compiles during install (needs `python3`, `make`, a C++ compiler). On macOS, install (and server start) restores the execute bit that node-pty 1.1.0 omits on its prebuilt `spawn-helper` ([node-pty#850](https://github.com/microsoft/node-pty/issues/850)); without it every spawn fails with `posix_spawnp failed`.

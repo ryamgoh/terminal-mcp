@@ -48,7 +48,8 @@
     "smoke": "npm run build && tsx test/smoke.ts",
     "inspect": "npm run build && npx -y @modelcontextprotocol/inspector node dist/cli.js",
     "prepack": "npm run build",
-    "version": "node scripts/sync-server-json.mjs && git add server.json"
+    "version": "node scripts/sync-server-json.mjs && git add server.json",
+    "demo": "npm run build && tsx examples/demo.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/express": "^2.0.2",

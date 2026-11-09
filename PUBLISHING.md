@@ -86,6 +86,7 @@ The tag starts `release.yml`. It runs the tests and the smoke check on Ubuntu an
 | `ENEEDAUTH` or `E401` in the workflow's npm step | The `NPM_TOKEN` secret is missing, mistyped or expired, or the trusted publisher does not match: check the user, repository and `release.yml` on npmjs.com, and that `repository.url` in `package.json` is exactly your repository |
 | `403 ... too similar to existing packages` | npm blocks names close to existing ones; use a scoped name |
 | `You cannot publish over the previously published versions` | That version already exists; bump with `npm version patch` |
+| `NPM package '...' not found (status: 404)` from the registry right after a first publish | npm processes a new upload for a few minutes before serving it ("Your package is being processed"). The workflow now waits for it; if an older run failed this way, re-run its failed job once `npm view <package>` works |
 | `Registry validation failed for package` | The npm package is missing or lacks `mcpName`; publish to npm first, from the configured `package.json` |
 | `You do not have permission to publish this server` | The registry name does not start with `io.github.<the account you logged in with>/` |
 | `placeholders left; run scripts/configure-release.mjs first` | Step 1 was skipped |

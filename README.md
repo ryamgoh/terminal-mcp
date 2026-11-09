@@ -9,14 +9,14 @@ It works with any MCP client. Local clients launch it over **stdio**; remote or 
 No clone or build needed; the client starts the server with `npx`:
 
 ```bash
-claude mcp add terminal -- npx -y YOUR_NPM_PACKAGE          # Claude Code
+claude mcp add terminal -- npx -y @ryamgoh/terminal-mcp          # Claude Code
 ```
 
 ```json
-{ "mcpServers": { "terminal": { "command": "npx", "args": ["-y", "YOUR_NPM_PACKAGE"] } } }
+{ "mcpServers": { "terminal": { "command": "npx", "args": ["-y", "@ryamgoh/terminal-mcp"] } } }
 ```
 
-The JSON form works for Cursor (`~/.cursor/mcp.json`), Claude Desktop and most other clients. Add server flags after the package name, for example `["-y", "YOUR_NPM_PACKAGE", "--max-sessions", "8"]`. In Manus, a command-based custom MCP connector with `npx -y YOUR_NPM_PACKAGE` gives the agent terminals in its own cloud sandbox; to give it terminals on your machine, use HTTP mode (below). The server is also listed in the [MCP Registry](https://registry.modelcontextprotocol.io/) as `io.github.ryamgoh/terminal-mcp`.
+The JSON form works for Cursor (`~/.cursor/mcp.json`), Claude Desktop and most other clients. Add server flags after the package name, for example `["-y", "@ryamgoh/terminal-mcp", "--max-sessions", "8"]`. In Manus, a command-based custom MCP connector with `npx -y @ryamgoh/terminal-mcp` gives the agent terminals in its own cloud sandbox; to give it terminals on your machine, use HTTP mode (below). The server is also listed in the [MCP Registry](https://registry.modelcontextprotocol.io/) as `io.github.ryamgoh/terminal-mcp`.
 
 ## Quick start (from source)
 

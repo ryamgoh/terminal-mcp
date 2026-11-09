@@ -1,5 +1,5 @@
 {
-  "name": "terminal-mcp",
+  "name": "@ryamgoh/terminal-mcp",
   "version": "0.1.0",
   "mcpName": "io.github.ryamgoh/terminal-mcp",
   "description": "MCP server that lets agents create and control real terminal sessions: run commands, read output by cursor, type into interactive programs, see state, kill process trees",

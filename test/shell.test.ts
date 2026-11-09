@@ -36,7 +36,7 @@ describe.each(combos)('shell sessions over $transport ($era client, $shell)', ({
   it('starts a tracked shell that reaches an idle prompt', async () => {
     const s = await call(client, 'terminal_start', { shell, cwd: '/' });
     id = s.session_id;
-    expect(s).toMatchObject({ state: 'running', kind: 'shell', shell, integration: 'vscode-osc633', shell_state: 'idle', reason: 'ready' });
+    expect(s, `${shell} did not reach a tracked prompt; screen:\n${s.screen}`).toMatchObject({ state: 'running', kind: 'shell', shell, integration: 'vscode-osc633', shell_state: 'idle', reason: 'ready' });
   });
 
   it('runs a command and returns only its output with exit code 0', async () => {

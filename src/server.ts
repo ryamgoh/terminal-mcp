@@ -96,10 +96,15 @@ export function buildServerFactory(manager: SessionManager, audit: Logger | null
         const s = manager.start(opts);
         const reason = await s.waitReady(wait_ms);
         const result = await withInput(s, { ...s.status(), reason, screen: s.screen().text });
-        const hint =
-          s.kind === 'shell' && s.integration === 'none' && s.state === 'running'
-            ? 'The shell did not report a prompt in time, so command tracking may be unavailable. Check the screen; use terminal_write/terminal_read, or try terminal_exec again shortly.'
-            : hintFor(s, reason, result as { input_kind?: string | null });
+        let hint: string | undefined;
+        if (s.kind === 'shell' && s.integration === 'none' && s.state === 'running') {
+          const question = s.screen().text.trimEnd().split('\n').pop()?.trim().slice(0, 200);
+          hint = result.awaiting_input
+            ? `The shell is asking a question before its first prompt: "${question}". It comes from the user's shell startup files. Answer with terminal_write (for a yes/no question, input "y" or "n"; ask the user if unsure); command tracking starts as soon as the prompt appears.`
+            : 'The shell did not report a prompt in time, so command tracking may be unavailable. Check the screen; use terminal_write/terminal_read, or try terminal_exec again shortly.';
+        } else {
+          hint = hintFor(s, reason, result as { input_kind?: string | null });
+        }
         return { result: hint ? { ...result, hint } : result };
       },
     );

@@ -25,7 +25,11 @@ jobs:
           package-manager-cache: false
       - name: Install zsh and vim (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y zsh vim
+        run: |
+          sudo apt-get update && sudo apt-get install -y zsh vim
+          # GitHub's Ubuntu image has group/world-writable zsh function directories, so Ubuntu's global
+          # compinit stops every new zsh at an "insecure directories" question. Fix them the standard way.
+          zsh -fc 'autoload -Uz compaudit; compaudit 2>/dev/null' | grep '^/' | xargs -r sudo chmod g-w,o-w || true
       - run: npm ci
       - run: npm test
       - run: npm run smoke

@@ -1,4 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import type { Client } from '@modelcontextprotocol/client';
 import { call, httpClient, pidAlive, sleep, startHttpServer, stdioClient, type Any, type Era, type HttpServer } from './helpers.js';
 
@@ -168,5 +171,39 @@ describe.each(combos)('shell sessions over $transport ($era client, $shell)', ({
     expect(r).toMatchObject({ completed: true, reason: 'exited', state: 'exited', exit_code: 3 });
     const list = await call(client, 'terminal_list');
     expect(list.sessions.find((x: Any) => x.session_id === s.session_id)).toMatchObject({ state: 'exited', exit_code: 3 });
+  });
+});
+
+// A shell can stop at a question before its first prompt (zsh's compinit "insecure directories" check, a y/n in
+// ~/.zshrc). terminal_start must report it as awaiting input with the question, and answering it must leave a
+// normal tracked shell. Uses a throwaway HOME whose startup files ask; both files for bash cover login and non-login.
+describe.each(['bash', 'zsh'] as const)('startup questions (%s)', (shell) => {
+  let client: Client;
+  let home: string;
+  beforeAll(async () => {
+    home = fs.mkdtempSync(path.join(os.tmpdir(), 'tmcp-home-'));
+    const ask =
+      shell === 'zsh'
+        ? "read -q 'REPLY?Finish setup [y/n]? '; echo; [[ $REPLY == y ]] && export SETUP_ANSWER=yes\n"
+        : "read -r -p 'Finish setup [y/n]? ' REPLY; [ \"$REPLY\" = y ] && export SETUP_ANSWER=yes\n";
+    for (const f of shell === 'zsh' ? ['.zshrc'] : ['.bashrc', '.bash_profile']) fs.writeFileSync(path.join(home, f), ask);
+    client = await stdioClient('legacy', [], { HOME: home });
+  });
+  afterAll(async () => {
+    await client?.close();
+    fs.rmSync(home, { recursive: true, force: true });
+  });
+
+  it('reports the question, then tracks commands once it is answered', async () => {
+    const s = await call(client, 'terminal_start', { shell, wait_ms: 2000 });
+    expect(s, `screen:\n${s.screen}`).toMatchObject({ state: 'running', integration: 'none', awaiting_input: true, input_kind: 'prompt' });
+    expect(s.hint).toContain('Finish setup [y/n]?');
+    await call(client, 'terminal_write', { session_id: s.session_id, input: shell === 'zsh' ? 'y' : 'y\r', settle_ms: 500 });
+    const r = await call(client, 'terminal_exec', { session_id: s.session_id, command: 'echo answered-$SETUP_ANSWER' });
+    expect(r).toMatchObject({ completed: true, exit_code: 0 });
+    expect(r.output.text).toBe('answered-yes');
+    const list = await call(client, 'terminal_list');
+    expect(list.sessions.find((x: Any) => x.session_id === s.session_id)).toMatchObject({ integration: 'vscode-osc633', shell_state: 'idle' });
+    await call(client, 'terminal_kill', { session_id: s.session_id });
   });
 });

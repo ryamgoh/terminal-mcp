@@ -438,7 +438,9 @@ export class Session extends EventEmitter {
   async inputState(): Promise<InputState> {
     const none: InputState = { awaiting_input: false, input_kind: null };
     if (this.state !== 'running' || this.pendingParses > 0) return none;
-    if (this.kind === 'shell' && this.shellState !== 'busy') return none;
+    // An idle shell is at its own prompt. A shell that has not reported a prompt yet ('unknown') may be stuck on
+    // a startup question (zsh's compinit insecure-directories check, a y/n in ~/.zshrc), so probe it like a busy one.
+    if (this.kind === 'shell' && this.shellState === 'idle') return none;
     // Same quiet window terminal_start/terminal_write use to decide output has settled.
     if (Date.now() - this.lastOutputAt < 250) return none;
     const modes = await ttyModes((this.pty as unknown as { ptsName?: string }).ptsName);

@@ -23,10 +23,11 @@ function newClient(era: Era): Client {
   return new Client({ name: 'terminal-mcp-tests', version: '1.0.0' }, era === 'auto' ? { versionNegotiation: { mode: 'auto' } } : undefined);
 }
 
-export async function stdioClient(era: Era, extraArgs: string[] = []): Promise<Client> {
+export async function stdioClient(era: Era, extraArgs: string[] = [], envOverrides: Record<string, string> = {}): Promise<Client> {
   const client = newClient(era);
   const env: Record<string, string> = {};
   for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = v;
+  Object.assign(env, envOverrides);
   await client.connect(new StdioClientTransport({ command: process.execPath, args: [CLI, '--no-audit', ...extraArgs], env, stderr: 'ignore' }));
   return client;
 }

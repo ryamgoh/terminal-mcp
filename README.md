@@ -23,7 +23,7 @@ The JSON form works for Cursor (`~/.cursor/mcp.json`), Claude Desktop and most o
 ```bash
 npm install
 npm run build
-npm test            # 87 end-to-end tests against the built server (bash + zsh, stdio + HTTP)
+npm test            # 89 end-to-end tests against the built server (bash + zsh, stdio + HTTP)
 npm run smoke       # narrated 11-step check of one real session, as a local MCP client sees it
 ```
 
@@ -150,4 +150,4 @@ Agent commands are kept out of your shell history by default (bash: history is o
 
 ## Known limitations
 
-Windows is not supported yet (node-pty supports ConPTY; the shell integration for PowerShell is vendored but not wired up). Shells other than bash and zsh fall back to bash. Sessions live in the server process and do not survive a restart. Commands that replace the shell (`exec`), or shells whose startup files disable VS Code's integration, lose command tracking; `terminal_write` and `terminal_read` still work.
+Windows is not supported yet (node-pty supports ConPTY; the shell integration for PowerShell is vendored but not wired up). Shells other than bash and zsh fall back to bash. Sessions live in the server process and do not survive a restart. Commands that replace the shell (`exec`), or shells whose startup files disable VS Code's integration, lose command tracking; `terminal_write` and `terminal_read` still work. If a shell asks a question while it starts (for example zsh's compinit "insecure directories" check, or a prompt in `~/.zshrc`), `terminal_start` returns `awaiting_input: true` with the question in `hint`; answering it with `terminal_write` lets the shell finish starting, and command tracking begins at its first prompt.

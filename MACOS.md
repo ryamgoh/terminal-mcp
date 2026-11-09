@@ -40,11 +40,11 @@ They are expected. node-pty 1.1.0, the current stable release, publishes its mac
 npm test
 ```
 
-This builds the server and runs 87 end-to-end tests against the real binary through the official MCP client, in about a minute. The shell scenarios run four times (stdio with a 2025-era client and HTTP with a 2026-07-28 client, each on bash and zsh). The rest cover the python REPL, vim, screen rendering, output floods, paging, ten concurrent sessions, limits, disconnect cleanup and HTTP security. The run should end with:
+This builds the server and runs 89 end-to-end tests against the real binary through the official MCP client, in about a minute. The shell scenarios run four times (stdio with a 2025-era client and HTTP with a 2026-07-28 client, each on bash and zsh). The rest cover the python REPL, vim, screen rendering, output floods, paging, ten concurrent sessions, limits, disconnect cleanup and HTTP security. The run should end with:
 
 ```
  Test Files  2 passed (2)
-      Tests  87 passed (87)
+      Tests  89 passed (89)
 ```
 
 The tests use whichever `bash` comes first on your `PATH`. If you installed bash 5 with Homebrew, that is the one tested. To test macOS's own `/bin/bash` 3.2 as well:
@@ -210,6 +210,7 @@ Anyone with the URL and token gets a shell as your user, so stop both tabs with 
 |---|---|---|
 | `Error: posix_spawnp failed` | node-pty's `spawn-helper` is not executable (install ran with `--ignore-scripts`, or with pnpm) | Start the server once (it repairs this on start), or run `chmod +x node_modules/node-pty/prebuilds/darwin-*/spawn-helper` |
 | Client says the server failed to start, or `spawn node ENOENT` | The desktop app cannot find `node` | Use the absolute path from `which node` as `command` |
+| `terminal_start` returns `awaiting_input: true` and the screen says `zsh compinit: insecure directories` | Your zsh completion setup found group- or world-writable directories (common with Homebrew under `/opt/homebrew/share`) and asks before every new shell | The agent can answer it (`n` is the safe answer) and the session then works normally. To stop the question for good, run `compaudit \| xargs chmod g-w,o-w` in your own terminal |
 | `terminal_start` returns `integration: "none"` | Your startup files disable or break VS Code's shell integration (some prompt frameworks do) | Try `terminal_start` with `"shell": "bash"`; `terminal_write` and `terminal_read` keep working regardless |
 | Shell start is slow or hits `wait_ms` | A heavy `~/.zshrc` (for example a large plugin framework) | Pass a larger `wait_ms` to `terminal_start`, or `"login": false` |
 | Developer-tools dialog during `npm test` | `/usr/bin/python3` is a stub until the Command Line Tools are installed | `xcode-select --install`, then rerun |

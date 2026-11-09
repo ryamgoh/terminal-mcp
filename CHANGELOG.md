@@ -11,4 +11,5 @@ First release.
 - Interactive input: text, named keys (`ctrl+c`, arrows, function keys) and waits for a pattern, the prompt or the end of a command.
 - stdio for local clients; Streamable HTTP with bearer-token auth, Host and Origin checks, and an optional secret-path token for URL-only clients such as Manus. Serves both the 2025 protocol and the 2026-07-28 revision.
 - Limits, idle timeout, process-tree kill, a JSONL audit log, and agent commands kept out of your shell history.
+- Questions a shell asks while starting (such as zsh's compinit "insecure directories" check) are reported by `terminal_start` as `awaiting_input` with the question; once answered, the session is tracked normally.
 - macOS: repairs node-pty 1.1.0's non-executable `spawn-helper`, and sends multi-line commands to `/bin/bash` 3.2 (no bracketed paste) as a single `eval` line.

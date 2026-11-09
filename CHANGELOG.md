@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `ROADMAP.md`: build timeline, feature completeness against the brief (8 of 8) and the full plan (24 of 45), and the release plan to 1.0. Summarised in a new README Status section.
 - `npm run demo`: a narrated MCP client session (shell, cursor reads, prompts, a REPL, a web server, kill), recorded in `docs/demo.gif`, plus `docs/demo-manus.md`, the transcript of a Manus task controlling terminals through the published package.
 
 ## 0.1.0

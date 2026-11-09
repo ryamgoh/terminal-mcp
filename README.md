@@ -8,6 +8,19 @@ It works with any MCP client. Local clients launch it over **stdio**; remote or 
 
 This recording is `npm run demo -- --npx`: a scripted MCP client making the same tool calls an agent would, against the published npm package. Every response shown is the server's real answer. Replay it in your terminal with `npm run demo`, or play [docs/demo.cast](docs/demo.cast) with `asciinema play`. For a real agent, see [Manus controlling terminals through terminal-mcp](docs/demo-manus.md), the transcript of a Manus task using the server as a custom MCP connector.
 
+## Status
+
+Version 0.1.0 meets all **8 of 8 requirements** in the original brief, and **24 of the 45 features** in the full product plan are done (53%), with 2 more partly done. Next up: 0.1.1 fixes two small known defects, then 0.2 lets Manus control terminals on your own Mac. [ROADMAP.md](ROADMAP.md) has the build timeline, the feature-by-feature table and the release plan.
+
+| Area | Done | Partial | Planned |
+|---|---|---|---|
+| Core (sessions, PTY, shell tracking, waits, tools) | 8 | 0 | 0 |
+| Remote access and clients | 5 | 1 | 1 |
+| Agent ergonomics | 6 | 1 | 5 |
+| Safety | 1 | 0 | 6 |
+| Packaging | 4 | 0 | 3 |
+| Extras | 0 | 0 | 4 |
+
 ## Install from npm
 
 No clone or build needed; the client starts the server with `npx`:
